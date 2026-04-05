@@ -389,8 +389,10 @@ server {
 	listen 443 ssl;
 	server_name nerpadoo.sslnitc.site;
 
-    	ssl_certificate /etc/letsencrypt/live/nerpadoo.sslnitc.site/fullchain.pem; # managed by Certbot
-    	ssl_certificate_key /etc/letsencrypt/live/nerpadoo.sslnitc.site/privkey.pem; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/nerpadoo.sslnitc.site/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/nerpadoo.sslnitc.site/privkey.pem; # managed by Certbot
+
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline;";
 
 	# SERVER 1 -> app1
 	location /server1/ {
@@ -415,6 +417,8 @@ sudo nginx -t
 # Restart the service
 sudo systemctl restart nginx.service 
 ```
+![alt text](20260405_220810.png)
+![alt text](20260405_220810.png)
 
 Since the ports 3000 and 8008 are left open it is neccessary to 
 
@@ -423,11 +427,7 @@ Since the ports 3000 and 8008 are left open it is neccessary to
 
  * [x] https://nerpadoo.sslnitc.site/server1/ -> returns SSL Onboarding. path: /server1/
  * [x] https://nerpadoo.sslnitc.site/server2/ -> returns SSL Onboarding. path: /
- * [ ] https://nerpadoo.sslnitc.site/sslopen -> Should open isSSLOpen App
-
- Cannot access https://nerpadoo.sslnitc.site/sslopen/edit:token1
-
- Dont know what the problem is
+ * [x] https://nerpadoo.sslnitc.site/sslopen -> Opened ssl app
 
 ---
 
