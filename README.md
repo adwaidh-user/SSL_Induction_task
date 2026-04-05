@@ -11,7 +11,7 @@ Created a VM in Azure
 * static ip: 20.193.159.55
 * SSH only
 
-![alt text](20260405_221329.png)
+![VM Info in Azure](20260405_221329.png)
 
 ## 2. System Updates and security
 Run
@@ -419,8 +419,8 @@ sudo nginx -t
 # Restart the service
 sudo systemctl restart nginx.service 
 ```
-![alt text](20260405_220810.png)
-![alt text](20260405_220831.png)
+![Server 1 & 2 output on curl](20260405_220810.png)
+![isSSLOpen working Img](20260405_220831.png)
 
 Since the ports 3000 and 8008 are left open it is neccessary to 
 
@@ -612,5 +612,111 @@ sudo apt install qrencode
 sudo cat /etc/wireguard/user1.conf | qrencode -t ansiutf8
 ```
 After scanning the qr generated in wiregaurd in mobile, ifconfig.me showed the ip of the VM.
-![alt text](20260405_221732.png)
+![wg status](20260405_221732.png)
 ---
+# Stage 7: VPN Configuration (WireGuard)
+
+## Installation and setup
+
+Docker was already installed and enabled as part of stage 5. But the user added to the group was the test user
+```bash
+sudo usermod -aG docker acavum
+```
+![docker check](20260405_222652.png)
+
+## Portfolio Website
+Made a folder named portfolio with index.html inside
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Adwaidh's Portfolio</title>
+	</head>
+	<body>
+		<h1>Hello, I'm Adwaidh</h1>
+		<p>This is my Dockerized portfolio website 🚀</p>
+	</body>
+</html>
+
+```
+
+Running the container
+```bash
+docker run -d
+--name portfolio-container
+-p 8080:80
+-v ~/portfolio:/usr/share/nginx/html:ro
+--restart unless-stopped nginx
+```
+
+The portfolio folder is owned by the $USER with permission 755
+
+And after that i modified the previous nginx config
+```
+server {
+	listen 80;
+	server_name nerpadoo.sslnitc.site;
+
+	return 301 https://$host$request_uri;
+}
+
+server {
+	listen 443 ssl;
+	server_name nerpadoo.sslnitc.site;
+
+    	ssl_certificate /etc/letsencrypt/live/nerpadoo.sslnitc.site/fullchain.pem; # managed by Certbot
+    	ssl_certificate_key /etc/letsencrypt/live/nerpadoo.sslnitc.site/privkey.pem; # managed by Certbot
+
+	add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline';";
+
+	# Portfolio
+	location / {
+		proxy_pass http://127.0.0.1:8080;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	# SERVER 1 -> app1
+	location /server1/ {
+		proxy_pass http://127.0.0.1:8008;
+		proxy_set_header Host $host;
+	}
+
+	#SERVER 2 -> app2 (root path)
+	location /server2/ {
+		proxy_pass http://127.0.0.1:8008/;
+		proxy_set_header Host $host;
+	}
+
+	#SSL OPEN -> app2 endpoint
+	location /sslopen/ {
+		proxy_pass http://127.0.0.1:3000/;
+		proxy_set_header Host $host;
+	}
+
+}
+```
+
+A systemd service was created ```/etc/systemd/system/portfolio.service``` to keep it running on startup
+```ini
+[Unit]
+Description=Portfolio Docker Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a portfolio-container
+ExecStop=/usr/bin/docker stop -t 2 portfolio-container
+
+[Install]
+WantedBy=multi-user.target
+```
+```bash
+sudo systemctl daemon-reexec
+sudo systemctl enable portfolio
+sudo systemctl start portfolio
+```
+
+After reloading the nginx config too
+![Portfolio Img](20260405_225305.png)
