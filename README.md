@@ -612,5 +612,5 @@ sudo apt install qrencode
 sudo cat /etc/wireguard/user1.conf | qrencode -t ansiutf8
 ```
 After scanning the qr generated in wiregaurd in mobile, ifconfig.me showed the ip of the VM.
-
+![alt text](20260405_221732.png)
 ---
