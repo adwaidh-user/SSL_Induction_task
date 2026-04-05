@@ -418,7 +418,7 @@ sudo nginx -t
 sudo systemctl restart nginx.service 
 ```
 ![alt text](20260405_220810.png)
-![alt text](20260405_220810.png)
+![alt text](20260405_220831.png)
 
 Since the ports 3000 and 8008 are left open it is neccessary to 
 
