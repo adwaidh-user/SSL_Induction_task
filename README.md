@@ -11,6 +11,8 @@ Created a VM in Azure
 * static ip: 20.193.159.55
 * SSH only
 
+![alt text](20260405_221329.png)
+
 ## 2. System Updates and security
 Run
 ```bash
