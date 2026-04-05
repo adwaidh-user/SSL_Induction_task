@@ -720,3 +720,8 @@ sudo systemctl start portfolio
 
 After reloading the nginx config too
 ![Portfolio Img](20260405_225305.png)
+
+---
+
+Document written by
+**ADWAIDH CHANDRAN A, B240121CS** 
